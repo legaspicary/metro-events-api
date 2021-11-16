@@ -6,6 +6,7 @@ import { EventModule } from './event/event.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { readFileSync } from 'fs';
+import { User } from './user/entities/user.entity';
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -16,7 +17,7 @@ import { readFileSync } from 'fs';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: 'metroevents',
-      entities: [],
+      entities: [User],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,
