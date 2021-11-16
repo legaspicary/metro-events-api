@@ -7,9 +7,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { readFileSync } from 'fs';
 import { User } from './user/entities/user.entity';
+import { AuthModule } from './auth/auth.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -26,6 +29,7 @@ import { User } from './user/entities/user.entity';
     }),
     UserModule,
     EventModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

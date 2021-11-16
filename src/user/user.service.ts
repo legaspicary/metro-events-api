@@ -8,7 +8,19 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    const existingUser = await this.userRepo.findOne({
+      where: { username: createUserDto.username },
+    });
+    if (!!existingUser) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          errors: ['Username already taken'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const user = this.userRepo.create(createUserDto);
     return this.userRepo.save(user);
   }
@@ -19,7 +31,21 @@ export class UserService {
 
   findOne(id: number) {
     const user = this.userRepo.findOne(id);
-    if (!!user) {
+    if (!!!user) {
+      throw new HttpException(
+        {
+          status: HttpStatus.BAD_REQUEST,
+          errors: ['User not found'],
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    return user;
+  }
+
+  findOneByUsername(username: string) {
+    const user = this.userRepo.findOne({ where: { username } });
+    if (!!!user) {
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
