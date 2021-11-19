@@ -1,8 +1,11 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../../user/entities/user.entity";
 
 @Entity()
 export class Notification {
+    @PrimaryGeneratedColumn()
+    id: number;
+
     @Column()
     title: string;
 

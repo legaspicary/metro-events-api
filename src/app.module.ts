@@ -8,6 +8,10 @@ import { ConfigModule } from '@nestjs/config';
 import { readFileSync } from 'fs';
 import { User } from './user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { PromotionRequest } from './user/entities/promtotion-request.entity';
+import { Event } from './event/entities/event.entity';
+import { Notification } from './event/entities/notification.entity';
+import { Participant } from './event/entities/participant.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,7 +24,7 @@ import { AuthModule } from './auth/auth.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: 'metroevents',
-      entities: [User],
+      entities: [User, PromotionRequest, Event, Notification, Participant],
       synchronize: true,
       ssl: {
         rejectUnauthorized: false,

@@ -1,8 +1,10 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
 
 @Entity()
 export class PromotionRequest {
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @Column({ default: "organizer" })
     promoteTo: string;
