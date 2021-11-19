@@ -7,6 +7,8 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Notification } from '../../event/entities/notification.entity';
+import { PromotionRequest } from './promtotion-request.entity';
 
 @Entity()
 export class User {
@@ -28,6 +30,12 @@ export class User {
 
   @OneToMany(() => Participant, (participant) => participant.user, { cascade: true })
   participants?: Participant[];
+
+  @OneToMany(() => Notification, (notification) => notification.recipient, { cascade: true })
+  notifications?: Notification[];
+
+  @OneToMany(() => PromotionRequest, (request) => request.requestingUser, { cascade: true })
+  requests?: PromotionRequest[];
 
   @Exclude()
   @DeleteDateColumn()
