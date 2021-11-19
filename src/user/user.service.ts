@@ -29,8 +29,8 @@ export class UserService {
     return this.userRepo.find();
   }
 
-  findOne(id: number) {
-    const user = this.userRepo.findOne(id);
+  async findOne(id: number) {
+    const user = await this.userRepo.findOne(id);
     if (!!!user) {
       throw new HttpException(
         {

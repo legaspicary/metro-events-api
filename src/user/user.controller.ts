@@ -28,7 +28,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Roles(Role.Admin, Role.Organizer)
+  // @Roles(Role.Admin, Role.Organizer)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
