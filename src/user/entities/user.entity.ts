@@ -1,8 +1,10 @@
 import { Exclude } from 'class-transformer';
+import { Participant } from '../../event/entities/participant.entity';
 import {
   Column,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -23,6 +25,9 @@ export class User {
 
   @Column()
   fullName: string;
+
+  @OneToMany(() => Participant, (participant) => participant.user, { cascade: true })
+  participants?: Participant[];
 
   @Exclude()
   @DeleteDateColumn()
