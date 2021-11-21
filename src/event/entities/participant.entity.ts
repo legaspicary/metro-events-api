@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class Participant {
@@ -17,6 +18,7 @@ export class Participant {
   @Column()
   status: string;
 
+  @Exclude()
   @Column()
   hasUpvoted: boolean;
 

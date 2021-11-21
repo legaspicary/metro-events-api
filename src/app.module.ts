@@ -10,7 +10,7 @@ import { User } from './user/entities/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { PromotionRequest } from './user/entities/promtotion-request.entity';
 import { Event } from './event/entities/event.entity';
-import { Notification } from './event/entities/notification.entity';
+import { Notification } from './user/entities/notification.entity';
 import { Participant } from './event/entities/participant.entity';
 @Module({
   imports: [

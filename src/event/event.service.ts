@@ -15,17 +15,29 @@ export class EventService {
     return this.eventRepo.save(event);
   }
 
-  findAll() {
-    return this.eventRepo.find({
+  async findAll() {
+    const events = await this.eventRepo.find({
       order: {
         createdAt: "DESC"
       },
-      relations: ["owner"]
+      relations: ["owner", "participants"]
     });
+    events.forEach(event => {
+      let upvotes = 0;
+      event.participants.forEach(participant => {
+        if (participant.hasUpvoted) {
+          upvotes++;
+        }
+      })
+      event.upvotes = upvotes;
+    })
+    return events;
   }
 
   async findOne(id: number) {
-    const event = await this.eventRepo.findOne(id, { relations: ["owner"] });
+    const event = await this.eventRepo.findOne(id, {
+      relations: ["owner", "participants"]
+    });
     if (!!!event) {
       throw new HttpException(
         {
@@ -35,6 +47,13 @@ export class EventService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    let upvotes = 0;
+    event.participants.forEach(participant => {
+      if (participant.hasUpvoted) {
+        upvotes++;
+      }
+    })
+    event.upvotes = upvotes;
     return event;
   }
 

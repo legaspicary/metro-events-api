@@ -15,9 +15,6 @@ export class Notification {
     @ManyToOne(() => User, (user) => user.notifications)
     recipient: User;
 
-    @Column({ default: false })
-    isViewed: boolean;
-
     @CreateDateColumn()
     createdAt: Date;
 

@@ -28,6 +28,7 @@ export class Event {
   @Column({ type: 'timestamptz' })
   endDate: Date;
 
+  @Exclude()
   @OneToMany(() => Participant, (participant) => participant.event, { cascade: true })
   participants?: Participant[];
 

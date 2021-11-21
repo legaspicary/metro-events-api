@@ -12,7 +12,6 @@ export class ParticipantService {
 
     async joinEvent(user: User, event: Event) {
         const existingParticipant = await this.findOneByUser(user, event)
-        console.log(existingParticipant);
         if (!!existingParticipant && (existingParticipant.status === "approved" || existingParticipant.status === "pending")) {
             throw new HttpException(
                 {
@@ -37,18 +36,18 @@ export class ParticipantService {
     }
 
     findAllByEvent(event: Event, status: string) {
-        if(!!status) {
+        if (!!status) {
             return this.participantRepo.find({ where: { event, status } })
         }
-        return this.participantRepo.find({ where: { event } })
+        return this.participantRepo.find({ where: { event }, relations: ["owner"] },)
     }
 
     findOneByUser(user: User, event: Event) {
-        return this.participantRepo.findOne({ where: { owner: user, event } })
+        return this.participantRepo.findOne({ where: { owner: user, event }, order: { id: 'DESC' } })
     }
 
     async findOne(id: number) {
-        const participant = await this.participantRepo.findOne(id);
+        const participant = await this.participantRepo.findOne(id, { relations: ["owner", "event"] });
         if (!!!participant) {
             throw new HttpException(
                 {
@@ -68,10 +67,10 @@ export class ParticipantService {
         if (participant.status !== "approved") {
             errors.push('User not a participant in this event');
         }
-        if (participant.owner !== user) {
+        if (participant.owner.id !== user.id) {
             errors.push('User does not own participation');
         }
-        if(errors.length > 0) {
+        if (errors.length > 0) {
             throw new HttpException(
                 {
                     status: HttpStatus.BAD_REQUEST,
@@ -86,7 +85,7 @@ export class ParticipantService {
     async updateStatus(id: number, updateDto: UpdateParticipantDto) {
         const participant = await this.findOne(id);
         !!updateDto.status && (participant.status = updateDto.status)
-        if(participant.status === "declined")
+        if (participant.status === "declined")
             return this.participantRepo.softRemove(participant);
         else
             return this.participantRepo.save(participant);

@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Notification } from '../../event/entities/notification.entity';
+import { Notification } from './notification.entity';
 import { PromotionRequest } from './promtotion-request.entity';
 import { Event } from '../../event/entities/event.entity';
 

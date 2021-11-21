@@ -11,6 +11,7 @@ import { ParticipantService } from './participant/participant.service';
 import { UserService } from '../user/user.service';
 import { UpdateParticipantDto } from './dto/update-participant.dto';
 import { QueryParticipantDto } from './dto/query-participant.dto';
+import { NotificationService } from '../user/notification/notification.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -20,12 +21,18 @@ export class EventController {
     private readonly eventService: EventService,
     private readonly participantService: ParticipantService,
     private readonly userService: UserService,
+    private readonly notifService: NotificationService
   ) { }
 
   @Post('/:id/participants')
   async joinEvent(@RequestUser() userInRequest, @Param('id') id: string) {
     const user = await this.userService.findOne(+userInRequest.id);
     const event = await this.eventService.findOne(+id);
+    this.notifService.create(
+      `A user wants to join ${event.name}`,
+      `${user.fullName} has requested to join your event named ${event.name}`,
+      event.owner
+    )
     return this.participantService.joinEvent(user, event);
   }
 
@@ -42,15 +49,27 @@ export class EventController {
   }
 
   @Roles(Role.Admin, Role.Organizer)
-  @Patch('/participants/:id')
-  updateParticipantStatus(@Param('id') id: string, @Body() updateDto: UpdateParticipantDto) {
-    return this.participantService.updateStatus(+id, updateDto);
+  @Patch('/participant-status/:id')
+  async updateParticipantStatus(@Param('id') id: string, @Body() updateDto: UpdateParticipantDto) {
+    const participant = await this.participantService.updateStatus(+id, updateDto);
+    this.notifService.create(
+      `${participant.event.name} request`,
+      `Your request for ${participant.event.name} has been ${participant.status}`,
+      participant.owner
+    )
+    return participant;
   }
 
   @Roles(Role.Admin, Role.Organizer)
   @Delete('/participants/:id')
-  removeParticipant(@Param('id') id: string) {
-    return this.participantService.remove(+id);
+  async removeParticipant(@Param('id') id: string) {
+    const participant = await this.participantService.remove(+id);
+    this.notifService.create(
+      `${participant.event.name} participation update`,
+      `You have been removed from the event ${participant.event.name}`,
+      participant.owner
+    )
+    return participant;
   }
 
   @Patch('/participants/:id')
@@ -63,7 +82,19 @@ export class EventController {
   @Post()
   async create(@RequestUser() userInRequest, @Body() createEventDto: CreateEventDto) {
     const user = await this.userService.findOne(+userInRequest.id);
-    return this.eventService.create(user, createEventDto);
+    const users = await this.userService.findAll();
+    const event = await this.eventService.create(user, createEventDto);
+    users.forEach(recipient => {
+      if (recipient.id != event.owner.id) {
+        this.notifService.create(
+          `Upcoming event: ${event.name}`,
+          `There is an upcoming event, you might want to check it out!`,
+          recipient
+        )
+      }
+
+    })
+    return event;
   }
 
   @Get()
@@ -84,7 +115,16 @@ export class EventController {
 
   @Roles(Role.Admin, Role.Organizer)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const event = await this.eventService.findOne(+id);
+    const participants = await this.participantService.findAllByEvent(event, null);
+    participants.forEach(participant => {
+      this.notifService.create(
+        `${event.name} has been cancelled`,
+        `The event has been cancelled.`,
+        participant.owner,
+      )
+    })
+    return await this.eventService.remove(+id);
   }
 }

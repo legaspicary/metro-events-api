@@ -20,6 +20,7 @@ import { RequestService } from './request/request.service';
 import { RequestUser } from './decorators/request-user.decorator';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request';
+import { NotificationService } from './notification/notification.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
@@ -27,8 +28,21 @@ import { UpdateRequestDto } from './dto/update-request';
 export class UserController {
   constructor(
     private readonly userService: UserService,
-    private readonly requestService: RequestService
+    private readonly requestService: RequestService,
+    private readonly notifService: NotificationService
   ) { }
+
+  @Get('/notifications')
+  async findNotifications(@RequestUser() userInRequest) {
+    const user = await this.userService.findOne(userInRequest.id);
+    return this.notifService.find(user);
+  }
+
+  @Delete('/notifications/:id')
+  async removeNotification(@Param('id') id: string) {
+    return this.notifService.remove(+id);
+  }
+
 
   @Roles(Role.User)
   @Post('/promotion-requests')
