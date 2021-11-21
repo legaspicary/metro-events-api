@@ -1,5 +1,7 @@
+import { Exclude } from 'class-transformer';
 import {
   Column,
+  CreateDateColumn,
   DeleteDateColumn,
   Entity,
   OneToMany,
@@ -27,6 +29,10 @@ export class Event {
   @OneToMany(() => Participant, (participant) => participant.event, { cascade: true })
   participants?: Participant[];
 
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Exclude()
   @DeleteDateColumn()
   deletedAt: Date;
 }
