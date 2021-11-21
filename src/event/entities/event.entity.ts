@@ -1,9 +1,11 @@
 import { Exclude } from 'class-transformer';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -28,6 +30,9 @@ export class Event {
 
   @OneToMany(() => Participant, (participant) => participant.event, { cascade: true })
   participants?: Participant[];
+
+  @ManyToOne(() => User, (user) => user.events)
+  owner: User;
 
   @CreateDateColumn()
   createdAt: Date;

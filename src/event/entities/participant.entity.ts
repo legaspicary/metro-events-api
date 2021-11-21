@@ -20,11 +20,11 @@ export class Participant {
   @Column()
   hasUpvoted: boolean;
 
-  @Column()
+  @Column({ default: null })
   review: string;
 
   @ManyToOne(() => User, (user) => user.participants)
-  user: User;
+  owner: User;
 
   @ManyToOne(() => Event, (event) => event.participants)
   event: Event;

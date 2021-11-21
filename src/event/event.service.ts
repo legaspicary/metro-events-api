@@ -1,5 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -8,8 +9,9 @@ import { Event } from './entities/event.entity';
 @Injectable()
 export class EventService {
   constructor(@InjectRepository(Event) private eventRepo: Repository<Event>) { }
-  create(createEventDto: CreateEventDto) {
+  create(owner: User, createEventDto: CreateEventDto) {
     const event = this.eventRepo.create(createEventDto);
+    event.owner = owner;
     return this.eventRepo.save(event);
   }
 
@@ -17,12 +19,13 @@ export class EventService {
     return this.eventRepo.find({
       order: {
         createdAt: "DESC"
-      }
+      },
+      relations: ["owner"]
     });
   }
 
   async findOne(id: number) {
-    const event = await this.eventRepo.findOne(id);
+    const event = await this.eventRepo.findOne(id, { relations: ["owner"] });
     if (!!!event) {
       throw new HttpException(
         {

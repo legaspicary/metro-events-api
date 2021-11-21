@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Notification } from '../../event/entities/notification.entity';
 import { PromotionRequest } from './promtotion-request.entity';
+import { Event } from '../../event/entities/event.entity';
 
 @Entity()
 export class User {
@@ -28,8 +29,11 @@ export class User {
   @Column()
   fullName: string;
 
-  @OneToMany(() => Participant, (participant) => participant.user, { cascade: true })
+  @OneToMany(() => Participant, (participant) => participant.owner, { cascade: true })
   participants?: Participant[];
+
+  @OneToMany(() => Event, (event) => event.owner, { cascade: true })
+  events?: Event[];
 
   @OneToMany(() => Notification, (notification) => notification.recipient, { cascade: true })
   notifications?: Notification[];
