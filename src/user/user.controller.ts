@@ -48,7 +48,17 @@ export class UserController {
   @Post('/promotion-requests')
   async createRequest(@RequestUser() userInRequest, @Body() createRequestDto: CreateRequestDto) {
     const user = await this.userService.findOne(userInRequest.id);
-    return this.requestService.create(user, createRequestDto);
+    const users = await this.findAll();
+    const admins = users.filter(val => val.role === "admin");
+    const request = await this.requestService.create(user, createRequestDto);
+    admins.forEach(admin => {
+      this.notifService.create(
+        `${user.fullName} promotion request`,
+        `${user.fullName} has requested to be promoted to ${request.promoteTo}.`,
+        admin,
+      )
+    })
+    return request
   }
 
   @Roles(Role.Admin)
@@ -59,8 +69,14 @@ export class UserController {
 
   @Roles(Role.Admin)
   @Patch('/promotion-requests/:id')
-  updateRequest(@Param('id') id: string, @Body() updateRequestDto: UpdateRequestDto) {
-    return this.requestService.update(+id, updateRequestDto);
+  async updateRequest(@Param('id') id: string, @Body() updateRequestDto: UpdateRequestDto) {
+    const request = await this.requestService.update(+id, updateRequestDto);
+    this.notifService.create(
+      `Promotion request`,
+      `Your request to be promoted to ${request.promoteTo} has been ${request.isApproved ? "approved" : "declined"}.`,
+      request.requestingUser,
+    );
+    return request;
   }
 
   @Roles(Role.Admin)

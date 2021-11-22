@@ -34,6 +34,7 @@ export class Participant {
   @CreateDateColumn()
   createdAt: Date;
 
+  @Exclude()
   @DeleteDateColumn()
   deletedAt: Date;
 }
